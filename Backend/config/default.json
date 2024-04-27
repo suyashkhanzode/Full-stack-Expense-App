@@ -1,0 +1,10 @@
+{
+    "PORT" : 9897,
+    "dbsetting" : {
+        "host":"localhost",
+        "user":"root",
+        "password": "manager",
+        "database":"expresspractise"
+    }
+
+}
