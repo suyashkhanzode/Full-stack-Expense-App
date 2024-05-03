@@ -1,7 +1,9 @@
-const config = require('config');
+
 const express = require('express');
 
 const app = express();
+
+const db = require('./models/expense')
 
 const expenseRoute = require('./routes/expense')
 
@@ -15,13 +17,17 @@ app.use((request, response, next)=>{
    next();
 });
 
-app.use('/sharpner',expenseRoute);
+app.use('/expenses',expenseRoute);
 
-
-
-
-const PORTNO = config.get("PORT");
-
-app.listen(PORTNO,()=>{
-    console.log("Server Started")
+db.sync()
+.then((res) =>{
+    app.listen(4000,()=>{
+        console.log("Server Started")
+    })
 })
+.catch((err) =>{
+    console.log(err);
+})
+
+
+

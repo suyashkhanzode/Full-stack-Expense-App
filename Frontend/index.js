@@ -1,13 +1,19 @@
+
+
 function handleFormSubmit(event){
     event.preventDefault();
-     const title = document.getElementById("title").value
+    debugger;
+     const description = document.getElementById("description").value
      const amount = document.getElementById("amount").value
-     document.getElementById("title").value = ""
+     const category = document.getElementById("category").value
      document.getElementById("amount").value = ""
+     document.getElementById("description").value = ""
+     document.getElementById("category").value = ""
      
-      axios.post("http://localhost:9897/sharpner/addexpense",{
-        title : title,
-        amount : amount
+      axios.post("http://localhost:4000/expenses/add-expense",{
+        description : description,
+        amount : amount,
+        category : category
      })
      .then((res) =>{
        handleOnLoad();
@@ -18,43 +24,25 @@ function handleFormSubmit(event){
     
 }
 function handleOnLoad(){
-    axios.get("http://localhost:9897/sharpner/getexpense")
+   
+    
+    axios.get("http://localhost:4000/expenses/get-expense")
     .then((res) =>{
         const siteList = document.querySelector("ul");
             siteList.innerHTML = ""; 
+            debugger;
             res.data.forEach((item) => {
-                displayList(item, siteList);
+                createList(item);
             });
     })
     .catch((err) =>{
         console.log(err)
     })
-
-    function displayList(list,siteList){
-        const listItem = document.createElement("li");
-        listItem.appendChild( document.createTextNode(`${list.title} > ${list.amount}`))
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.appendChild(document.createTextNode("Delete"));
-        listItem.appendChild(deleteBtn);
-        deleteBtn.addEventListener("click",()=>{
-               deleteSite(list.id)
-        })
-        const editBtn = document.createElement("button");
-        editBtn.appendChild(document.createTextNode("Edit"));
-        listItem.appendChild(editBtn);
-        editBtn.addEventListener("click",()=>{
-             editSite(list);
-        })
-
-        
-        siteList.appendChild(listItem);
-    }
 }
 
-function deleteSite(id){
+function deleteExpense(id){
     debugger;
-    axios.delete(`http://localhost:9897/sharpner/delete/${id}`)
+    axios.delete(`http://localhost:4000/expenses/delete-expense/${id}`)
     .then(() =>{
        handleOnLoad();
     })
@@ -63,53 +51,74 @@ function deleteSite(id){
     })
 }
 
-function editSite(list){
-     document.getElementById("title").value = list.title
-     document.getElementById("amount").value = list.amount;
+function editExpense(expens){
+     document.getElementById("description").value = expens.description
+     document.getElementById("amount").value = expens.amount;
+     document.getElementById("category").value = expens.category;
     const form = document.querySelector("form");
-    form.onsubmit = (event) =>{ updateSite(event,list.id)}
+    form.onsubmit = (event) =>{ updateExpense(event,expens.id)}
 }
 
-async function updateSite(event,id){
+async function updateExpense(event,id){
 
 
-    try{
+   
         event.preventDefault();
-        const updatetitle = document.getElementById("title").value
-        const updatepass = document.getElementById("amount").value 
-       
-        document.getElementById("title").value = ""
-         document.getElementById("amount").value = ""
-       let result = await axios.put(`https://crudcrud.com/api/e46e118a6e914744990b2f3894b4440d/passwords/${id}`,{
-            title : updatetitle,
-            pass : updatepass
+        const updatedescription = document.getElementById("description").value
+        const updateamount = document.getElementById("amount").value
+        const updatecategory = document.getElementById("category").value
+        document.getElementById("description").value = ""
+        document.getElementById("description").value = ""
+        document.getElementById("category").value = ""
+         debugger;
+        axios.put(`http://localhost:4000/expenses/update-expense/${id}`,{
+            description : updatedescription,
+            amount : updateamount,
+            category : updatecategory
         })
+        .then((res) =>{
+            handleOnLoad();
+          })
+          .catch((err)=>{
+             console.log(err);
+          })
+        
 
-        //let result = await res;
-       // debugger;
+      
          
             handleOnLoad();
         
         
         
-    }catch(err){
-        console.log(err);
-    }
+    
 
 }
 
-function searchPassword(serachText){
-    const list = document.querySelector("ul");
-    const passwords = list.getElementsByTagName("li");
-
-   for(let pass of passwords){
-    const title = pass.textContent.split(":")[0];
-    if (title.toLowerCase().includes(serachText.toLowerCase())) {
-        pass.style.display = "block"; 
-    } else {
-        pass.style.display = "none"; 
-    }
-   }
+function createList(expens)
+{
+    const list = document.createElement('li');
+    list.className = "list-group-item";
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = "btn btn-danger";
+    deleteBtn.textContent = "Delete";
+    const editBtn = document.createElement('button');
+    editBtn.className = "btn btn-warning";
+    editBtn.textContent = "Edit";
+    list.textContent = expens.amount + "  "+expens.description+" "+expens.category+ " ";
+    deleteBtn.addEventListener("click",function(){
+          
+         deleteExpense(expens.id);
+           
+    })
+    editBtn.addEventListener("click",function(){
+        editExpense(expens)
+    })
+    list.append(deleteBtn);
+ 
+    list.append(editBtn);
+    document.querySelector('.list-group').appendChild(list);
 }
+
+
 
 window.onload = handleOnLoad();
